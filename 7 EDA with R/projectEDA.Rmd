@@ -1,0 +1,510 @@
+---
+output:
+  html_document: default
+  word_document: default
+  pdf_document: default
+---
+EDA in R by britta ente 
+========================================================
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, packages}
+# Load all of the packages that you end up using in your analysis in this code
+# chunk.
+
+knitr::opts_chunk$set(fig.width=9,fig.height=7,fig.path='Figs/',
+                      fig.align='center',tidy=TRUE,
+                      echo=FALSE,warning=FALSE,message=FALSE)
+
+library(gridExtra)
+library(ggplot2)
+library(GGally)
+library(scales)
+library(memisc)
+library(gridExtra)
+library(grid)
+library(dplyr)
+library(ggplot2)
+# Notice that the parameter "echo" was set to FALSE for this code chunk. This
+# prevents the code from displaying in the knitted HTML output. You should set
+# echo=FALSE for all code chunks in your file, unless it makes sense for your
+# report to show the code that generated a particular plot.
+
+# The other parameters for "message" and "warning" should also be set to FALSE
+# for other code chunks once you have verified that each plot comes out as you
+# want it to. This will clean up the flow of your report.
+
+
+```
+
+```{r echo=FALSE, Load_the_Data}
+# Load the Data
+pf <- read.csv("WineQualityReds.csv")
+pf <- subset(pf, select=-c(X))
+head(pf)
+tail(pf)
+
+```
+
+looks like the file got 1599 red wines listed with 13 columns. each column show a different quality aspect of the red wine. for example the alcohol content, sweetness, ph value etc. furthermore the is a quality rank from 3-8 for each wine. 
+
+#### which description got the file?
+```{r echo=FALSE}
+?pf
+```
+
+####which names gt the file?
+```{r echo=FALSE}
+names(pf)
+```
+
+#### lets summarize the data to get an impression of the data
+```{r echo=FALSE}
+summary(pf)
+```
+
+# Univariate Plots Section
+
+i as a non wine drinker would that that the most important values are the ph value( wikipedia says that the lower the ph value the higher is the acidity), the quality, the alcohol content, the citrid acid( taste bitter and fresh), the residual sugar (taste sweet) and the chloride( taste salty) and the density are the most interesting values in this data set.
+
+lets arrange a few plots with the most important values. 
+#### quality 
+```{r echo=FALSE}
+summary(pf$quality)
+```
+
+
+the line above shows us a quality range of 3 till 8. the median is 6 and the mean is nearby with 5.636. the following histogramm shows this.
+
+```{r echo=FALSE}
+
+ggplot(data=pf, aes(x=quality))+ 
+    geom_histogram(binwidth=1, fill="darkgreen", colour="black")+
+    ggtitle("histogramm of quality")+
+    xlab("quality") +
+    scale_x_continuous(breaks=seq(2,9,1),limits =c(2,9))
+ 
+```
+#### residual sugar
+
+```{r echo=FALSE}
+
+summary(pf$residual.sugar)
+```
+
+
+the line above shows us a residual.sugar range of 0.9 till 15.5. the median is 2.2 and the mean is nearby with 2.539. the following histogramm shows this. the max of 15 is really an outlier. how many sugar values are above 10?
+```{r echo=FALSE}
+
+subset(pf, residual.sugar >10)
+```
+
+11 wines from 1599 got a residual sugar above ten. this are really outliers. 
+
+```{r echo=FALSE}
+knitr::opts_chunk$set( echo=FALSE,warning=FALSE,message=FALSE)
+
+ggplot(data=pf, aes(x=residual.sugar))+ 
+    geom_histogram(binwidth=0.25, fill="darkgreen", colour="black")+
+    ggtitle("histogramm of sugar")+
+    xlab("sugar") +
+    scale_x_continuous(breaks=seq(0,15,5),limits =c(0,15))
+```
+
+
+chlorides
+
+```{r echo=FALSE}
+summary(pf$chlorides)
+```
+
+the line above shows us a chlorides range of 0.012 till 0.611. the median is 0.07900 and the mean is 0.08747. the following histogramm shows this. 
+
+```{r echo=FALSE}
+ggplot(data=pf, aes(x=chlorides))+ 
+    geom_histogram(binwidth=0.001, fill="darkgreen", colour="black")+
+    ggtitle("histogramm of chlorides")+
+    xlab("chlorides") +
+    scale_x_continuous(breaks=seq(0,0.09,0.01),limits =c(0,0.09))
+```
+
+##### density
+
+```{r echo=FALSE}
+summary(pf$density)
+```
+the line above shows us a density range of 0.9901 till 1.0037. the median is 0.9968 and the mean is 0.9967. the histogramm is normal distributed.
+
+```{r echo=FALSE}
+ggplot(data=pf, aes(x=density))+ 
+    geom_histogram(binwidth=0.001, fill="darkgreen", colour="black")+
+    ggtitle("histogramm of density")+
+    xlab("density") +
+    scale_x_continuous(breaks=seq(0.98,1.01,0.001),limits =c(0.98,1.01))
+```
+
+#### alcohol content
+
+```{r echo=FALSE}
+summary(pf$alcohol)
+```
+the line above shows us a alcohol range of 8.4 till 14.90. the median is 10.20 and the mean is 10.42. this histogramm is more right skewed. the most wines got a alcohol content of 10%. 
+
+```{r echo=FALSE}
+ggplot(data=pf, aes(x=alcohol))+ 
+    geom_histogram(binwidth=1, fill="darkgreen", colour="black")+
+    ggtitle("histogramm of alcohol")+
+    xlab("alcohol") +
+    scale_x_continuous(breaks=seq(8,15,1),limits =c(8,15))
+```
+####ph value
+
+```{r echo=FALSE}
+
+summary(pf$pH)
+```
+
+the line above shows us a ph range of 2.740 till 4.010. the median is 3.310 and the mean is 3.311. this histogramm is normal distributed. the lower the ph value the higher shall be the acidity. we will see this in the second part of our project.
+
+```{r echo=FALSE}
+ggplot(data=pf, aes(x=pH))+ 
+    geom_histogram(binwidth=0.05, fill="darkgreen", colour="black")+
+    ggtitle("histogramm of ph")+
+    xlab("pH value") +
+    scale_x_continuous(breaks=seq(2,4.5,0.5),limits =c(2,4.5))
+```
+
+#### citric acid
+
+```{r echo=FALSE}
+summary(pf$citric.acid)
+```
+
+the line above shows us a citric acid range of 0.00 till 1.00. the median is 0.260 and the mean is 0.271.this histogramm is not normal distributed, it has no real form. some wins don´t tast fresh and all and some taste very fresh. 
+
+```{r echo=FALSE}
+ggplot(data=pf, aes(x=citric.acid))+ 
+    geom_histogram(binwidth=0.01, fill="darkgreen", colour="black")+
+    ggtitle("histogramm of citric acid")+
+    xlab("citric acid") +
+    scale_x_continuous(breaks=seq(0.00,1.00,0.05),limits =c(0.00,1.00))
+
+```
+
+
+# Bivariate Plots Section
+
+```{r echo=FALSE, fig.width=9, fig.height=9}
+
+ggpairs(pf) +
+ theme(text = element_text(size=8)) +
+ theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust = 1, size=8))
+  
+```
+
+
+
+
+# Bivariate Analysis
+
+####now lets compare the different values. the main question is what values does a red wine of high quality has? is there any correlation?
+
+#### first test: quality and citric.acid
+
+```{r echo=FALSE}
+
+cor.test(pf$quality, pf$citric.acid)
+```
+
+the correlation is weak with 0.2263725. lets see it in a plot
+
+```{r echo=FALSE}
+
+ggplot(aes(x=quality, y=citric.acid), data= pf ) +                            geom_jitter(alpha=1/10, color="darkgreen")+
+    ggtitle("relationship between quality and citric.acid")+
+    xlab("quality") +
+    ylab("citric acid")+
+        stat_summary(color='blue',
+               size=1,
+               geom='line',
+               fun.y=mean)
+    scale_x_continuous(breaks=seq(3,8,1),limits =c(3,8))
+```
+
+second test: quality and alcohol
+
+```{r echo=FALSE}
+cor.test(pf$quality, pf$alcohol)
+```
+
+the correlation is moderate with 0.4761663. lets see it in a plot. it is to see that we have a lot of wine with a quality of 5 and the alcohol content of under 10. 
+
+```{r echo=FALSE}
+ggplot(aes(x=quality, y=alcohol), data= pf ) +                               geom_jitter(alpha=1/5, color="darkgreen") +
+    ggtitle("relationship between quality and alcohol")+
+    xlab("quality") +
+    ylab("alcohol")+
+    stat_summary(color='blue',
+               size=1,
+               geom='line',
+               fun.y=mean) +
+    scale_x_continuous(breaks=seq(3,8,1),limits =c(3,8)) 
+```
+
+
+#### third test: quality and residual sugar
+
+```{r echo=FALSE}
+cor.test(pf$quality, pf$residual.sugar)
+```
+#### the correlation is very weak with 0.01373164. lets see it in a plot.
+
+```{r echo=FALSE}
+ggplot(aes(x=quality, y=residual.sugar), data= pf ) +                               geom_jitter(alpha=1/15, color="darkgreen") +
+    ggtitle("relationship between quality and sugar")+
+    xlab("quality") +
+    ylab("sugar")+
+    stat_summary(color='blue',
+               size=1,
+               geom='line',
+               fun.y=mean) +
+    scale_x_continuous(breaks=seq(3,8,1),limits =c(3,8))
+ ```
+ 
+ 
+ 
+ 
+#### fourth test: quality and density
+ 
+```{r echo=FALSE}
+cor.test(pf$quality, pf$density)
+
+```
+
+#### the correlation is very weak with -0,17494. lets see it in a plot.  
+
+
+```{r echo=FALSE}
+ggplot(aes(x=quality, y=density), data= pf ) +                               geom_jitter(alpha=1/5, color="darkgreen") +
+    ggtitle("relationship between quality and density")+
+    xlab("quality") +
+    ylab("density")+
+    stat_summary(color='blue',
+               size=1,
+               geom='line',
+               fun.y=mean) +
+    scale_x_continuous(breaks=seq(3,8,1),limits =c(3,8))
+```
+    
+#### fifth test: ph value and acidity 
+
+```{r echo=FALSE}
+
+cor.test(pf$pH, pf$fixed.acidity)
+```
+
+the correlation is -0,6829782.this means as higher the acidity is as lower is pH value, as to read in the wikipedia article. 
+
+```{r echo=FALSE}
+ggplot(aes(x=pH, y=fixed.acidity), data= pf ) +                               geom_jitter(alpha=1/5, color="darkgreen") +
+    ggtitle("relationship between pH and acidity")+
+    xlab("pH") +
+    ylab("acidity ")+
+    stat_summary(color='blue',
+               size=1,
+               geom='line',
+               fun.y=mean) +
+    scale_x_continuous(breaks=seq(2.7,4,0.5),limits =c(2.57,4))
+```
+
+    
+#### sixth test: quality and density
+
+```{r echo=FALSE}
+cor.test(pf$quality, pf$sulphates)
+```
+
+#### the correlation is very weak with -0,17494. lets see it in a plot. 
+
+```{r echo=FALSE}
+ggplot(aes(x=quality, y=density), data= pf ) +                               geom_jitter(alpha=1/5, color="darkgreen") +
+    ggtitle("relationship between quality and density")+
+    xlab("quality") +
+    ylab("density")+
+    stat_summary(color='blue',
+               size=1,
+               geom='line',
+               fun.y=mean) +
+    scale_x_continuous(breaks=seq(3,8,1),limits =c(3,8))  
+```
+
+#### seventh test: density and alcohol
+
+```{r echo=FALSE}
+cor.test(pf$density, pf$alcohol)
+```
+#### the correlation is moderate with 0.4961798. lets see it in a plot.   
+```{r echo=FALSE}
+ggplot(aes(x=alcohol, y=density), data= pf ) +                               geom_jitter(alpha=1/5, color="darkgreen") +
+    ggtitle("relationship between alcohol and density")+
+    xlab("alcohol") +
+    ylab("density")+
+    stat_summary(color='blue',
+               size=1,
+               geom='line',
+               fun.y=mean) +
+    scale_x_continuous(breaks=seq(8,15,1),limits =c(8,15)) 
+```
+
+#### eight test: quality and chlorides
+
+```{r echo=FALSE}
+cor.test(pf$quality, pf$chlorides)
+```
+
+# the correlation is low with 0.1289066. lets see it in a plot.
+ 
+```{r echo=FALSE}
+ggplot(aes(x=quality, y=chlorides), data= pf ) +                               geom_jitter(alpha=1/20, color="darkgreen") +
+    ggtitle("relationship between quality and chlorides")+
+    xlab("alcohol") +
+    ylab("chlorides")+
+    stat_summary(color='blue',
+               size=1,
+               geom='line',
+               fun.y=mean) +
+    scale_x_continuous(breaks=seq(3,8,1),limits =c(3,8)) 
+```
+#### ninth test: sugar and density
+
+```{r echo=FALSE}
+cor.test(pf$residual.sugar, pf$density)
+```
+#### the correlation is moderate with 0.3552834. lets see it in a plot. 
+
+```{r echo=FALSE}
+
+ggplot(aes(x=residual.sugar, y=density), data= pf ) +                               geom_jitter(alpha=1/10, color="darkgreen") +
+    ggtitle("relationship between sugar and density")+
+    xlab("sugar") +
+    ylab("density")+
+    stat_summary(color='blue',
+               size=1,
+               geom='line',
+               fun.y=mean) +
+    scale_x_continuous(breaks=seq(0,16,1),limits =c(0,16)) 
+```
+
+
+Talk about some of the relationships you observed in this part of the so far it looks like there is no correlation between all the values and the quality of the wine. it would make sense if there is no correlation of qualtiy and citric.acid, residual sugar and chlorides.all three mentioned variables determine the taste and the preferences of each wine lover will be different. it also makes sense that the alcholic content has no effect on the quality of the wine. 
+but there is a relationship between alcohol and density. looks like as higher the density is, as lower the alcohol content is. furthermore we can say that a high density content got most likely a higher sugar content. 
+ 
+# Multivariate Plots Section
+
+#### density, quality and pH value in context
+
+```{r echo=FALSE}
+ggplot(aes(x= pH, y= density, color=as.factor(quality)), data = pf) + 
+  geom_point(alpha=1/2) +
+  ggtitle("density, quality and ph value in context") +
+  scale_color_brewer(type = "div", palette = "RdYlBu", name="Quality", direction=-1)+
+  guides(color=guide_legend(override.aes = list(alpha = 1)))
+```
+
+#### citric.acid, residual sugar and chlorides in context
+
+```{r echo=FALSE}
+ggplot(aes(x= citric.acid, y= residual.sugar,color=chlorides), data = pf) + 
+  geom_point(alpha=1/20) +
+  ggtitle("citric.acid, residual sugar and chlorides in context") 
+```
+
+
+#### citric.acid, residual sugar and quality in context. 
+
+```{r echo=FALSE}
+ggplot(aes(x= citric.acid, y= residual.sugar), data = pf) + 
+  geom_jitter(alpha=1/20, color="darkgreen") +
+  ggtitle("citric.acid, residual sugar and quality in context") +
+  xlab(expression(Citric~Acid~(g/dm^{3}))) +
+  ylab(expression(Residual~Sugar~(g/dm^{3})))+
+  facet_wrap(~quality) 
+```
+
+
+
+
+# Multivariate Analysis
+most noticeable is the first plot. it is clear to see that most wines have a pH value of 3.5 and a density of 0.5-1. in addition, we can say that most wines contain little sugar, acid and chloride. and in the third plot you can also see why. because only wines with a good rating of note 5+6 have a low sugar content and little acid. 
+
+------
+
+# Final Plots and Summary
+
+## first plot
+### histogramm of quality 
+
+```{r echo=FALSE}
+
+ggplot(data=pf, aes(x=quality))+ 
+    geom_histogram(binwidth=1, fill="darkgreen", colour="black")+
+    ggtitle("histogramm of quality")+
+    xlab("quality") +
+    scale_x_continuous(breaks=seq(2,9,1),limits =c(2,9))
+```   
+
+### Description one 
+the quality range of red wines in our file. the histogram shows a normal distribution. few wines have only a quality range of 3 or 4. most wines with the quality seal of 5 or 6 are in the clear middle field. far fewer wines have a higher quality. the reason might be, that wine is a very everyday good, which is consumed by many people regularly. if wine would be a pure luxury good like e.g. a yacht, then the price and also automatically the quality would be substantially higher. most people will fall back on a red wine, which is affordable and tastes good. 
+
+## second plot
+### relationship between pH and acidity
+
+```{r echo=FALSE}
+
+ggplot(aes(x=pH, y=fixed.acidity), data= pf ) +                               geom_jitter(alpha=1/5, color="darkgreen") +
+    ggtitle("relationship between pH and acidity")+
+    xlab("pH") +
+    ylab("acidity ")+
+    stat_summary(color='blue',
+               size=1,
+               geom='line',
+               fun.y=mean) +
+    scale_x_continuous(breaks=seq(2.7,4,0.5),limits =c(2.57,4)) 
+```
+
+###Description two
+the website wineskills gives us the explation why the relationshsip between pH value and acidity is so remarkable. 
+The main acids present in grapes are tartaric and malic. These are 'organic' acids, as they contain carbon atoms. They are responsible for the relatively high acidity and low pH (hydrogen ion concentration) of grapes, compared with other fruits, and for the fresh crisp taste of wine. 
+so we can say as higher the lower the pH value as higher the acidity. 
+
+
+
+## Plot Three
+####citric.acid, residual sugar and quality in context. 
+
+```{r echo=FALSE}
+ggplot(aes(x= citric.acid, y= residual.sugar), data = pf) + 
+  geom_jitter(alpha=1/20, color="darkgreen") +
+  ggtitle("citric.acid, residual sugar and quality in context") +
+  xlab(expression(Citric~Acid~(g/dm^{3}))) +
+  ylab(expression(Residual~Sugar~(g/dm^{3})))+
+  facet_wrap(~quality) 
+```
+
+### Description Three
+it is clear to see that wine with a good quality of 5-6 contains very little sugar and acid. the longer a wine has been allowed to ferment, the higher the quality of the wine. the sugar is broken down during the fermentation process. good wine therefore tends to have less sugar. 
+
+
+# Reflection
+
+R is not a difficult language to learn, especially if you understand already a few things about statistic, programming and design principles. as we got pyhton lesson already, we are well prepared to learn now R.
+
+i am basically not an alcohol drinker, so it was very hard to understand a file with 1599 different wines. in addition, i have no idea about chemistry and all the chemical terms irritated me a lot. at first i thought that it would be very easy to see a connection between the quality of the wines and their components. but i was completely wrong about that. so i played around with ggpairs to find out which parts of wine depend on each other or whether the data have any conspicuous features. that helped me to familiarize myself with the material.
+it would be very interesting to find out who has assessed the quality of the wine. were they experts or normal wine customers? 
+
+in general it can be said that wine consists of 70-85 % water, 10-15% alcohol and the acid content is about 6-15 g/l. 
+
+The sooner the fermentation process is stopped, the more sugar there is in the wine. The wine then tastes all the sweeter. The longer the fermentation process lasts, the less sweetness there is in the wine and the drier the wine tastes. this is the reason why our dataset contains little sugar of higher quality. 
+
+further questions which unfortunately cannot be answered with the dataset are the price of wine, who the customers are and in which countries which wine gets the most attention. 
+
+
